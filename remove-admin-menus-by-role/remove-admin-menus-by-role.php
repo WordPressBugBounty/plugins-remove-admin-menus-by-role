@@ -3,7 +3,7 @@
 /*
 Plugin Name: Remove admin menus by roles
 Plugin URI: 
-Version: 1.37
+Version: 1.38
 Description: Remove admin menus by roles.
 Author: InfoD74
 Author URI: https://www.info-d-74.com/en/shop/
@@ -21,21 +21,40 @@ register_uninstall_hook(__FILE__, 'remove_menu_admin_free_desinstall');
 
 
 
-function remove_menu_admin_free_install() {
-
-
+function remove_menu_admin_free_install($network_wide) {
 
 	global $wpdb;
 
+	if (is_multisite() && $network_wide) {
 
+		// get ids of all sites
+
+		$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+
+		foreach ($blogids as $blog_id) {
+
+			switch_to_blog($blog_id);
+
+			// create tables for each site
+			remove_menu_admin_free_create_table();
+
+			restore_current_blog();
+
+		}
+
+	}
+	else
+		remove_menu_admin_free_create_table();
+
+}
+
+function remove_menu_admin_free_create_table() {
+
+	global $wpdb;
 
 	$remove_menu_admin_table = $wpdb->prefix . "remove_menu_admin_profiles";
 
-
-
 	require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-
 
 	$sql = "
 
@@ -61,15 +80,40 @@ function remove_menu_admin_free_install() {
 
     ";
 
-
-
     dbDelta($sql);
 
 }
 
-
-
 function remove_menu_admin_free_desinstall() {
+
+	if (is_multisite())	{
+
+		global $wpdb;
+
+		// get ids of all sites
+
+		$blogids = $wpdb->get_col("SELECT blog_id FROM $wpdb->blogs");
+
+		foreach ($blogids as $blog_id) {
+
+			switch_to_blog($blog_id);
+
+			// create tables for each site
+
+			remove_menu_admin_free_drop_table();
+
+			restore_current_blog();
+
+		}
+
+	}
+	else
+
+		remove_menu_admin_free_drop_table();	
+
+}
+
+function remove_menu_admin_free_drop_table() {
 
 	if(!is_plugin_active('remove-admin-menus-by-role-pro/remove-admin-menus-by-role-pro.php'))
 	{
