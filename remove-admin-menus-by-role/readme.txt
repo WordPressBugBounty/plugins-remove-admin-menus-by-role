@@ -3,7 +3,7 @@ Contributors: manu225
 Donate link: http://www.info-d-74.com
 Tags: remove, menu, hide, role, admin
 Requires at least: 3.5
-Tested up to: 6.9
+Tested up to: 7.1
 Stable tag: 1.38
 Requires PHP: 5.6
 License: GPLv2 or later
